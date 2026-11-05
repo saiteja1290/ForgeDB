@@ -1,0 +1,8 @@
+Header: 16bytes
+
+Magic - 4byte - FRGD
+Slot count - 4 bytes - integer
+Freehead - 4bytes 
+Reserved - 4 bytes - for future use 
+
+gcc -std=c17 -Wall -Wextra -Wpedantic -Werror main.c storage/storage.c record/record.c database/database.c -o forgedb.exe
