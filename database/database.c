@@ -13,24 +13,61 @@ int insert_user(FILE *file,
                 uint32_t age,
                 const char *name)
 {
+    // 2 cases - where free list in header in empty and non empty
 
-    if (fseek(file, 4, SEEK_SET) != 0)
+    // go to 8th byte to read the free head
+    if (fseek(file, 8, SEEK_SET) != 0)
         return 0;
 
-    uint32_t slot_count = read_u32_le(file);
+    // go ahead and read the free list
+    uint32_t freeListHeader = read_u32_le(file);
 
-    uint32_t offset = HEADER_SIZE + (RECORD_SIZE * slot_count);
-    if (fseek(file, offset, SEEK_SET) != 0)
-        return 0;
+    // if case - we have something in free list
+    if (freeListHeader != UINT32_MAX)
+    {
+        uint32_t offset = HEADER_SIZE + (RECORD_SIZE * freeListHeader);
 
-    if (!write_user(file, 1, id, age, name))
-        return 0;
+        // Read the next free slot before overwriting this record.
+        if (fseek(file, offset + 1, SEEK_SET) != 0)
+            return 0;
 
-    if (fseek(file, 4, SEEK_SET) != 0)
-        return 0;
+        uint32_t next_free = read_u32_le(file);
 
-    if (!write_u32_le(file, slot_count + 1))
-        return 0;
+        // Write the new user into the free slot.
+        if (fseek(file, offset, SEEK_SET) != 0)
+            return 0;
+
+        if (!write_user(file, 1, id, age, name))
+            return 0;
+
+        // Update free-list head to the next free slot.
+        if (fseek(file, 8, SEEK_SET) != 0)
+            return 0;
+
+        if (!write_u32_le(file, next_free))
+            return 0;
+    }
+    // else case - we dont anything in free list
+    else
+    {
+        if (fseek(file, 4, SEEK_SET) != 0)
+            return 0;
+
+        uint32_t slot_count = read_u32_le(file);
+
+        uint32_t offset = HEADER_SIZE + (RECORD_SIZE * slot_count);
+        if (fseek(file, offset, SEEK_SET) != 0)
+            return 0;
+
+        if (!write_user(file, 1, id, age, name))
+            return 0;
+
+        if (fseek(file, 4, SEEK_SET) != 0)
+            return 0;
+
+        if (!write_u32_le(file, slot_count + 1))
+            return 0;
+    }
 
     return 1;
 }

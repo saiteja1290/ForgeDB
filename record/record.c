@@ -13,6 +13,12 @@ void read_user(FILE *file)
     uint32_t id = read_u32_le(file);
     uint32_t age = read_u32_le(file);
 
+    if (status == 0)
+    {
+        printf("this user has been deleted");
+        return;
+    }
+
     // read name
     char name[32] = {0};
 
