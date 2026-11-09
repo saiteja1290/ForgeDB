@@ -34,3 +34,25 @@ int insert_user(FILE *file,
 
     return 1;
 }
+
+int delete_user(FILE *file, uint32_t slot_number)
+{
+    // Read current free-list head
+    fseek(file, 8, SEEK_SET);
+    uint32_t current_free = read_u32_le(file);
+
+    //  Mark record as free
+    fseek(file, 16 + 40 * slot_number, SEEK_SET);
+
+    uint8_t status = 0;
+    fwrite(&status, 1, 1, file);
+
+    // Store previous free-list head in the old ID field
+    write_u32_le(file, current_free);
+
+    //  Update header with the new free-list head
+    fseek(file, 8, SEEK_SET);
+    write_u32_le(file, slot_number);
+
+    return 1;
+}

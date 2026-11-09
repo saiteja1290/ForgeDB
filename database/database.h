@@ -5,3 +5,5 @@ int insert_user(FILE *file,
                 uint32_t id,
                 uint32_t age,
                 const char *name);
+
+int delete_user(FILE *file, uint32_t slot_number);

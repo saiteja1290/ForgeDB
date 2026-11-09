@@ -60,5 +60,53 @@ int main(void)
 
     fclose(db);
 
+    // Deletion
+    db = fopen("forgedb.db", "r+b");
+
+    if (db == NULL)
+    {
+        perror("Failed to open database for deletion");
+        return 1;
+    }
+
+    // Delete Teja (slot 2)
+    if (!delete_user(db, 2))
+    {
+        printf("Deletion failed\n");
+        fclose(db);
+        return 1;
+    }
+
+    // Verify free-list head
+    uint32_t free_head;
+
+    if (fseek(db, 8, SEEK_SET) != 0)
+    {
+        perror("Failed to seek to free-list head");
+        fclose(db);
+        return 1;
+    }
+
+    free_head = read_u32_le(db);
+
+    printf("\nFree-list head: %u\n", free_head);
+
+    // Read records again
+    printf("\nReading database after deletion:\n\n");
+
+    read_user_at(db, 0);
+    read_user_at(db, 1);
+    read_user_at(db, 2);
+    read_user_at(db, 3);
+
+    // Try deleting the same slot again
+    printf("\nAttempting to delete slot 2 again:\n");
+
+    if (!delete_user(db, 2))
+    {
+        printf("Correctly rejected: slot is already free.\n");
+    }
+
+    fclose(db);
     return 0;
 }

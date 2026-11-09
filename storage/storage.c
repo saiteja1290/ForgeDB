@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
+// writes an integer to the binary file
 int write_u32_le(FILE *file, uint32_t value)
 {
     uint8_t bytes[4];
