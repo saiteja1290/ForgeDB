@@ -44,6 +44,7 @@ int insert_user(FILE *file,
         if (fseek(file, 8, SEEK_SET) != 0)
             return 0;
 
+        // write the next_free integer in the free list
         if (!write_u32_le(file, next_free))
             return 0;
     }
