@@ -2,8 +2,7 @@
 #include <stdint.h>
 #include "../storage/storage.h"
 #include "../record/record.h"
-#include <stdio.h>
-#include <stdint.h>
+#include <string.h>
 
 #define HEADER_SIZE 16
 #define RECORD_SIZE 40
@@ -74,6 +73,7 @@ int insert_user(FILE *file,
 }
 
 int delete_user(FILE *file, uint32_t slot_number)
+
 {
     // Read current free-list head
     fseek(file, 8, SEEK_SET);
@@ -93,4 +93,30 @@ int delete_user(FILE *file, uint32_t slot_number)
     write_u32_le(file, slot_number);
 
     return 1;
+}
+
+int validate_database(FILE *file)
+{
+    // Function	Purpose
+    // strcmp()	Compares null-terminated strings
+    // memcmp()	Compares a fixed number of bytes
+    // ==	Compares values, or pointer addresses when used with pointers
+
+    // seek to 0th byte
+    if (fseek(file, 0, SEEK_SET) != 0)
+        return 0;
+
+    // read first 4 bytes
+
+    char magic[4] = {0};
+
+    // read the first 4 bytes
+    if (fread(magic, 1, 4, file) != 0)
+        return 0;
+
+    // use memcmp
+    if (memcmp(magic, "FRGD", 4) == 0)
+        return 1;
+
+    return 0;
 }
