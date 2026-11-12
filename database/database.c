@@ -118,5 +118,21 @@ int validate_database(FILE *file)
     if (memcmp(magic, "FRGD", 4) == 0)
         return 1;
 
+    if (fseek(file, 4, SEEK_SET) != 0) // now we are at slot_count
+        return 0;
+
+    // read slot count
+    uint32_t slot_count = read_u32_le(file);
+
+    // seek to byte 8 (free head)
+    uint32_t free_head = read_u32_le(file);
+
+    // validate free_head and slot count
+    if (free_head != UINT32_MAX && free_head > slot_count)
+    {
+        printf("Valdiatio failed : free_head > slot_count");
+        return 0;
+    }
+
     return 0;
 }
