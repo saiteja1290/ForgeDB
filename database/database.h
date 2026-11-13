@@ -9,3 +9,5 @@ int insert_user(FILE *file,
 int delete_user(FILE *file, uint32_t slot_number);
 
 int validate_database(FILE *file);
+
+int allocate_page(FILE *file, uint32_t *page_id);

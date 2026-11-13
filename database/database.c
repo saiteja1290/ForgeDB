@@ -136,3 +136,23 @@ int validate_database(FILE *file)
 
     return 0;
 }
+
+int allocate_page(FILE *file, uint32_t *page_id)
+{
+    if (fseek(file, 12, SEEK_SET) != 0)
+        return 0;
+
+    // read the page count at 12th byte
+    uint32_t page_count = read_u32_le(file);
+    *page_id = page_count;
+
+    // seek back to 12th byte
+    if (fseek(file, 12, SEEK_SET) != 0)
+        return 0;
+
+    // increment page count
+    if (!write_u32_le(file, page_count + 1))
+        return 0;
+
+    return 1;
+}
